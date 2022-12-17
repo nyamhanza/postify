@@ -1,0 +1,53 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Post;
+use Illuminate\Http\Request;
+
+class PostController extends Controller
+{
+
+
+public function __construct()
+{
+    $this->middleware(['auth']);
+}
+
+    public function store (){
+
+        $data=request()->validate([
+
+            'body'=>'required'
+        ]);
+        auth()->user()->posts()->create($data);
+
+        return back();
+
+        
+
+
+    }
+    public function index(Post $posts){
+
+        $posts=Post::latest()->with('user','likes')->paginate(5);
+
+        return view('posts.posts',compact('posts'));
+    }
+
+
+    public function destroy(Post $post){
+
+        $this->authorize('delete',$post); // From myPolicy called PostPolicy u can check
+        $post->delete();
+
+        return back();
+    }
+
+    public function show(Post $post){
+
+        return view('posts.show',compact('post'));
+
+    }
+   
+}
